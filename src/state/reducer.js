@@ -1,49 +1,94 @@
-const _ = require('lodash');
+import immutable from 'immutable';
 
-// The initial state is filled with some dummy data for debugging purposes
+const {List, Map} = immutable;
 
+const INITIAL_STATE = Map({
+  history: List([ 
+    Map({
+      squares: List([
+        null, null, null,
+        null, null, null,
+        null, null, null
+      ]),
+  })]),
+  stepNumber: 0,
+  xIsNext: true,
+  winner: false
+});
 
-// Action type constant for inserting a new task
-const INCREMENT = 'counter/increment';
-const DECREMENT = 'counter/decrement';
-
-const initialState = {
-       n : 0
-};
-
-// The reducer function takes the current state and an action, and returns
-// the new state after applying the action.
-function reducer(state, action) {
-  // Defaults for when state/action are not defined
-  state = state || initialState;
-  action = action || {};
-
-  switch(action.type) {
-    case INCREMENT: {
-        return {n : state.n + 1};
+function calculateWinner(squares) {
+  const lines = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
+  ];
+  for (let i = 0; i < lines.length; i++) {
+    const [a, b, c] = lines[i];
+    if (squares.get(a) && squares.get(a) === squares.get(b) && squares.get(a) === squares.get(c)) {
+      return squares.get(a);
     }
-    case DECREMENT: {
-        return {n : state.n - 1};
-    }
-    // If we don't recognise the action type, just return the store
-    // state unchanged
-    default: return state;
   }
-
-  throw new Error('Reducer switch statement should always return');
+  return null;
 }
 
-// Action creator for incrementing counter
-reducer.incrementCounter = () => {
-  return { type: INCREMENT } ;
-};
+// reducing functions
+function performMove(state, boxIndex){
+  const history = state.get('history');
+  const current = history.last();
+  let squares = current.get('squares');
+  let winner = state.get('winner');
 
-// Action creator for decrementing counter
-reducer.decrementCounter = () => {
-  return { type: DECREMENT } ;
-};
+  if(winner || squares.get(boxIndex)) {
+    return state;
+  }
 
+  squares = squares.set(boxIndex, state.get('xIsNext') ? 'X' : 'O');
 
-// Export the reducer function along with the action creators attached
-// to it.
-module.exports = reducer;
+  winner = calculateWinner(squares);
+
+  return state
+    .set('history', state
+      .get('history')
+      .push(Map({ squares: squares }))
+    )
+    .set('stepNumber', history.size)
+    .set('xIsNext', !state.get('xIsNext'))
+    .set('winner', winner);
+}
+
+function jumpToStep(state, step){
+  return state
+    .set('history', state.get('history').take(step + 1))
+    .set('stepNumber', step)
+    .set('xIsNext', (step % 2) === 0)
+    .set('winner', false);
+}
+
+function reset(state){
+  return state
+    .set('history', state.get('history').take(1))
+    .set('stepNumber', 0)
+    .set('xIsNext', true)
+    .set('winner', false);
+}
+
+// ====================
+export default function reducer(state = INITIAL_STATE, action) {
+  switch (action.type) {
+  case 'PERFORM_MOVE':
+    return performMove(state, action.boxIndex);
+
+  case 'JUMP_TO_STEP':
+    return jumpToStep(state, action.step);
+
+  case 'RESET':
+    return reset(state);
+  }
+
+  return state;
+}
