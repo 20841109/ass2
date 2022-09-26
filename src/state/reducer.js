@@ -1,15 +1,15 @@
 const _ = require('lodash');
 
 // The initial state is filled with some dummy data for debugging purposes
-const initialState = {
-  tasks: [
-    { id: 1, description: 'Mow the lawn', completed: false },
-    { id: 2, description: 'Unbench the Kench', completed: true },
-  ]
-};
+
 
 // Action type constant for inserting a new task
-const INSERT = 'task-list/insert';
+const INCREMENT = 'counter/increment';
+const DECREMENT = 'counter/decrement';
+
+const initialState = {
+       n : 0
+};
 
 // The reducer function takes the current state and an action, and returns
 // the new state after applying the action.
@@ -19,21 +19,12 @@ function reducer(state, action) {
   action = action || {};
 
   switch(action.type) {
-    case INSERT: {
-      // Copy current state
-      const newState = _.clone(state);
-      // Find next available task ID
-      const id = 1 + _.max(_.map(state.tasks, task => task.id));
-      // Construct new task from the details provided via the action
-      // and the next available ID
-      const newTask = _.assign({}, action.task, { id });
-      // Set the new array of tasks to be the old array with the
-      // new task included
-      newState.tasks = state.tasks.concat(newTask);
-      // Return the new state
-      return newState;
+    case INCREMENT: {
+        return {n : state.n + 1};
     }
-
+    case DECREMENT: {
+        return {n : state.n - 1};
+    }
     // If we don't recognise the action type, just return the store
     // state unchanged
     default: return state;
@@ -42,10 +33,16 @@ function reducer(state, action) {
   throw new Error('Reducer switch statement should always return');
 }
 
-// Action creator for inserting a new task
-reducer.insertTask = (description) => {
-  return { type: INSERT, task: { description, completed: false } };
+// Action creator for incrementing counter
+reducer.incrementCounter = () => {
+  return { type: INCREMENT } ;
 };
+
+// Action creator for decrementing counter
+reducer.decrementCounter = () => {
+  return { type: DECREMENT } ;
+};
+
 
 // Export the reducer function along with the action creators attached
 // to it.
