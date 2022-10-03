@@ -21,42 +21,32 @@ app.get('/', (req, res) => {
   // for React and links to our styles and scripts.
   const htmlContent = `
     <!DOCTYPE html>
-    <html>
-      <head>
-        <link rel="stylesheet" type="text/css" href="/assets/css/app.css">
-      </head>
-      <style>
-		.idle
-			{
-				background-color:#e7e7e7
-			}
-		.selected
-			{
-				background-color:#008CBA
-			}
-      
 
-      </style>
+<style>
+.idle
+{
+  background-color:#e7e7e7
+}
+.turn1
+{
+  background-color:#008CBA
+}
+.turn2
+{
+  background-color:#8C00BA
+}
 
-      <body>
-        <div id="root"></div>
-        <script src="/assets/js/vendor.js"></script>
-        <script src="/assets/js/app.js"></script>
-        
-        Clicked cell is :<a class ="selected" id="clicked"> </a><br>
-        move:<a id="counter"></a>
-        </body>
+</style>
 
-      
+    <body>
 
-
-    
-
+		Clicked ID is :<a id="clicked"></a><br>
+		Current Player:<a id="current">?</a><br>
+		Winner : <a id="winner">?</a>
+<br>
 
 <table border=1>
 <colgroup>
-<col style="width: 30px">
-<col style="width: 30px">
 <col style="width: 30px">
 <col style="width: 30px">
 <col style="width: 30px">
@@ -65,78 +55,117 @@ app.get('/', (req, res) => {
 <thead>
   <tr>
     <td></td>
-    <td>A</td>
-    <td>B</td>
-    <td>C</td>
-    
+    <td>1</td>
+    <td>2</td>
+    <td>3</td>
   </tr>
 </thead>
 <tbody>
   <tr>
-    
-    <td >1</td>
-    <td ><input type="button" id="A1" value="  " ></td>
-    <td ><input type="button" id="B1" value="  " ></td>
-    <td ><input type="button" id="C1" value="  " ></td>
-    
+    <td >A</td>
+    <td ><input type="button" id="A1" onClick="checkID()" class="idle" value=" " ></td>
+    <td ><input type="button" id="A2" onClick="checkID()" class="idle" value=" "></td>
+    <td ><input type="button" id="A3" onClick="checkID()" class="idle" value=" "></td>
   </tr>
   <tr>
-    <td >2</td>
-    <td ><input type="button"   id ="A2" value="  "></td>
-    <td ><input type="button" id="B2" value="  "></td>
-    <td ><input type="button" id="C2" value="  "></td>
-    
+    <td >B</td>
+    <td ><input type="button" id="B1" onClick="checkID()" class="idle" value=" "></td>
+    <td ><input type="button" id="B2" onClick="checkID()" class="idle" value=" "></td>
+    <td ><input type="button" id="B3" onClick="checkID()" class="idle" value=" "></td>
   </tr>
   <tr>
-    <td >3</td>
-    <td ><input type="button" id="A3" value="  " ></td>
-    <td ><input type="button" id="B3" value="  " ></td>
-    <td ><input type="button" id="C3" value="  "></td>
-    
+    <td >C</td>
+    <td ><input type="button" id="C1" onClick="checkID()" class="idle" value=" "></td>
+    <td ><input type="button" id="C2" onClick="checkID()" class="idle" value=" "></td>
+    <td ><input type="button" id="C3" onClick="checkID()" class="idle" value=" "></td>
   </tr>
-  
 </tbody>
 </table>		
 <br>
-
-<script>
- 
-    	
-   var countervalue=0;
-   var onClicked=(myfunction) => {
-    countervalue++;
-     
-      x=myfunction.target.id;
-      if(countervalue%2==0){
-      document.getElementById(x).style.backgroundColor = '#008CBA';
-      
-      document.getElementById('clicked').innerHTML=myfunction.target.id;
-      document.getElementById('counter').innerHTML=countervalue;
-      document.getElementById(x).value="0";
-
-      
-      }
-      else
-      {
-        document.getElementById(x).style.backgroundColor = 'red';
-      document.getElementById('clicked').innerHTML=myfunction.target.id;
-      document.getElementById('counter').innerHTML=countervalue;
-      document.getElementById(x).value="X";
-      
-      }
-
-}
-window.addEventListener('click', onClicked);
+  <input type = "button" id="reset" onClick="location.reload()" value="Reset">
+        <script>
+		var count=0;
+		const board=['1','2','3','4','5','6','7','8','9']; //assign unique initialisation values 
+		//map the location - index
+		// A1 = 0
+		// A2 = 1
+		// A3 = 2
+		// B1 = 3
+		// B2 = 4
+		// B3 = 5
+		// C1 = 6
+		// C2 = 7
+		// C3 = 8		
 		
-  </script>
-</body>
+		
+		function disableAll()
+		{
+		   document.getElementById("A1").disabled=true;
+		   document.getElementById("A2").disabled=true;
+		   document.getElementById("A3").disabled=true;
+		   document.getElementById("B1").disabled=true;
+		   document.getElementById("B2").disabled=true;
+		   document.getElementById("B3").disabled=true;
+		   document.getElementById("C1").disabled=true;
+		   document.getElementById("C2").disabled=true;
+		   document.getElementById("C3").disabled=true;
+		}
+	
+		function checkWinner(val)
+		{
+			//alert(board);
+			if (
+				((board[0]==board[1])&&(board[0]==board[2]))||((board[3]==board[4])&&(board[3]==board[5]))||((board[6]==board[7])&&(board[6]==board[8])) ||
+				((board[0]==board[3])&&(board[0]==board[6]))||((board[1]==board[4])&&(board[1]==board[7]))||((board[2]==board[5])&&(board[2]==board[8])) ||
+				((board[0]==board[4])&&(board[0]==board[8]))||((board[2]==board[4])&&(board[2]==board[6]))
+				)								
+				{document.getElementById("winner").innerHTML=val;
+				 disableAll();}
+			//check draw condition?			
+		}
+		
+		function updateArray(active)
+		{			
+			x = (active.id[0].charCodeAt(0)-65);
+			y = (active.id[1]-1);
+			pos=((y*3)+x);
+			board[pos]=active.value;
+			checkWinner(active.value);
+		}
+		
+		function checkID()
+		{
+			const active=document.activeElement;			
+			document.getElementById("clicked").innerHTML=active.id;			
+			let current=document.getElementById("current").innerHTML;
+			let val=active.value;
+			if (val===" ")
+			{				
+				if ((current==="?")||(current==="O"))
+				{
+					active.classList.add("turn2")
+					current="X";
+				}
+				else
+				{
+					active.classList.add("turn1")
+					current="O"
+				}
+				active.value=current;
+				updateArray(active);
+			}
+			else
+			{
+			   alert("No more move in this location");
+			}
+			console.log(current);
+			const curr=document.getElementById("current");
+			curr.innerHTML=current;
+		}
 
-
-
-
-
-
-    </html>`;
+	</script>
+    </body>
+</html>`;
 
   // Respond with the HTML
   res.send(htmlContent);
